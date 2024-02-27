@@ -1,7 +1,7 @@
-pub(crate) mod error;
+pub mod error;
 
 use reqwest::Client;
-use crate::client::error::OpenApiClientError;
+use crate::client::error::{ApiError, HttpClientError, OpenApiClientError};
 use crate::models::auth_response::AuthResponse;
 
 pub struct OpenApiClient{
@@ -26,15 +26,15 @@ impl OpenApiClient{
             Ok(response) => {
                 match response.text().await {
                     Ok(xml_string) => {
-                        Ok(AuthResponse::new(&xml_string))
+                        AuthResponse::new(&xml_string)
                     }
                     Err(error) => {
-                        Err(OpenApiClientError{ message: error.to_string() })
+                        Err(OpenApiClientError::ApiError(ApiError{ message: error.to_string() }))
                     }
                 }
             }
             Err(error) => {
-                Ok(AuthResponse::error(&error.to_string()))
+                Err(OpenApiClientError::HttpClientError(HttpClientError{ message: error.to_string() }))
             }
         }
     }

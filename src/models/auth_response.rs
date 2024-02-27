@@ -1,34 +1,43 @@
 use yaserde::de::from_str;
-use crate::dto::auth_response::Body;
+use crate::client::error::{OpenApiClientError, XmlDeserializationError};
+use crate::dto::auth_response::{Body, Envelope};
 
 pub(crate) struct AuthResponse {
-    pub result: AuthResponseResult
+    pub result: AuthResponseResult,
 }
 
 impl AuthResponse {
-    pub(crate) fn new(xml_string: &String) -> AuthResponse {
-        let auth_response = from_str::<crate::dto::auth_response::Envelope>(xml_string).unwrap();
-        let body = auth_response.body;
-        let result = match body {
-            Body::Fault(fault) => {
-                AuthResponseResult::Error(fault.faultstring)
+    pub(crate) fn new(xml_string: &String) -> Result<AuthResponse, OpenApiClientError> {
+        let auth_response = from_str::<Envelope>(xml_string);
+        match auth_response {
+            Ok(ok) => {
+                let body = ok.body;
+                let result = match body {
+                    Body::Fault(fault) => {
+                        AuthResponseResult::Error(AuthError{ message: fault.faultstring })
+                    }
+                    Body::GetMessageResponse(response) => {
+                        AuthResponseResult::Ok(AuthResponseToken { value: response.message.auth_response.auth_app_info.token })
+                    }
+                };
+                Ok(AuthResponse { result })
             }
-            Body::GetMessageResponse(response) => {
-                AuthResponseResult::Ok(AuthResponseToken{ value: response.message.auth_response.auth_app_info.token })
+            Err(message) => {
+                return Err(OpenApiClientError::DeserializationError(XmlDeserializationError{ message }));
             }
-        };
-        AuthResponse{result}
-    }
-    pub(crate) fn error(message: &String) -> AuthResponse{
-        AuthResponse{ result: AuthResponseResult::Error(message.clone()) }
+        }
     }
 }
 
-pub enum AuthResponseResult{
+pub enum AuthResponseResult {
     Ok(AuthResponseToken),
-    Error(String)
+    Error(AuthError),
 }
 
-struct AuthResponseToken{
-    value: String
+pub struct AuthError{
+    message: String
+}
+
+struct AuthResponseToken {
+    value: String,
 }
