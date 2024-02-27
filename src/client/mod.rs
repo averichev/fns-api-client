@@ -1,4 +1,4 @@
-pub mod error;
+pub(crate) mod error;
 
 use reqwest::Client;
 use crate::client::error::OpenApiClientError;
@@ -9,13 +9,13 @@ pub struct OpenApiClient{
     master_token: String
 }
 impl OpenApiClient{
-    fn new(master_token: &String) -> Self{
+    pub fn new(master_token: &String) -> Self{
         OpenApiClient{
             http_client: Client::new(),
             master_token: master_token.to_string()
         }
     }
-    async fn authorize(&self) -> Result<AuthResponse, OpenApiClientError> {
+    pub async fn authorize(&self) -> Result<AuthResponse, OpenApiClientError> {
         let model = crate::models::auth_request::AuthRequest::new(&self.master_token);
         let auth_request = self.http_client
             .post("https://openapi.nalog.ru:8090/open-api/AuthService/0.1")

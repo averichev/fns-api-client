@@ -2,7 +2,7 @@ use yaserde::de::from_str;
 use crate::dto::auth_response::Body;
 
 pub(crate) struct AuthResponse {
-    result: AuthResponseResult
+    pub result: AuthResponseResult
 }
 
 impl AuthResponse {
@@ -24,7 +24,7 @@ impl AuthResponse {
     }
 }
 
-enum AuthResponseResult{
+pub enum AuthResponseResult{
     Ok(AuthResponseToken),
     Error(String)
 }
