@@ -13,4 +13,4 @@ reqwest = "0.12.0"
 yaserde = "0.10.0"
 yaserde_derive = "0.10.0"
 serde = { version = "1.0.197", features = ["derive"] }
-validator = { version = "0.16.1", features = ["derive"] }
+validator = { version = "0.17.0", features = ["derive"] }

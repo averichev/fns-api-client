@@ -38,7 +38,7 @@ pub enum AuthResponseResult {
 
 #[derive(Clone)]
 pub struct AuthError{
-    message: String
+    pub message: String
 }
 
 #[derive(Clone)]

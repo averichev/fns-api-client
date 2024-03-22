@@ -7,7 +7,15 @@ pub enum TicketResponseResult{
     Err(Box<dyn TicketRequestErrorTrait>)
 }
 
-pub trait TicketTrait{}
+pub trait TicketTrait{
+    fn sum(&self) -> f64;
+    fn date(&self) -> String;
+    fn r#fn(&self) -> u64;
+    fn type_operation(&self) -> u8;
+    fn fiscal_document_id(&self) -> u64;
+    fn fiscal_sign(&self) -> u64;
+}
+
 pub trait TicketRequestErrorTrait{
-    fn mesage() -> String;
+    fn message(&self) -> String;
 }
