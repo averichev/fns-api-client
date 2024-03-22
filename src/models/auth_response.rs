@@ -2,7 +2,8 @@ use yaserde::de::from_str;
 use crate::client::error::{OpenApiClientError, XmlDeserializationError};
 use crate::dto::auth_response::{Body, Envelope};
 
-pub(crate) struct AuthResponse {
+#[derive(Clone)]
+pub struct AuthResponse {
     pub result: AuthResponseResult,
 }
 
@@ -29,15 +30,18 @@ impl AuthResponse {
     }
 }
 
+#[derive(Clone)]
 pub enum AuthResponseResult {
     Ok(AuthResponseToken),
     Error(AuthError),
 }
 
+#[derive(Clone)]
 pub struct AuthError{
     message: String
 }
 
-struct AuthResponseToken {
-    value: String,
+#[derive(Clone)]
+pub struct AuthResponseToken {
+    pub(crate) value: String,
 }
