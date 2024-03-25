@@ -1,31 +1,43 @@
+use std::sync::Arc;
+use crate::client::error::{FnsApiError, OpenApiClientError};
 use crate::dto::ticket_request::GetTicketInfo;
+use crate::dto::ticket_response::{Body, Envelope, GetMessageResponse};
 use crate::traits::ticket::{TicketRequestErrorTrait, TicketResponseResult, TicketResponseTrait, TicketTrait};
 
+#[derive(Clone)]
 pub(crate) struct TicketResponse {
-
+    result: TicketResponseResult,
 }
 
 impl TicketResponse {
-    pub(crate) fn new(xml_string: String) -> Box<dyn TicketResponseTrait> {
-        println!("{}", xml_string);
-
-        Box::new(TicketResponse {  })
+    pub(crate) fn new(response_dto: Envelope) -> Result<Arc<dyn TicketResponseTrait>, OpenApiClientError> {
+        match response_dto.body {
+            Body::Fault(fault) => {
+                Err(OpenApiClientError::FnsApiError(FnsApiError { message: fault.faultstring }))
+            }
+            Body::GetMessageResponse(t) => {
+                Ok(TicketResponse::ok(Ticket::new(t)))
+            }
+        }
+    }
+    fn ok(ticket: Arc<dyn TicketTrait>) -> Arc<dyn TicketResponseTrait> {
+        Arc::new(TicketResponse { result: TicketResponseResult::Ok(ticket) })
     }
 }
 
 impl TicketResponseTrait for TicketResponse {
     fn result(&self) -> TicketResponseResult {
-        TicketResponseResult::Err(TicketRequestError::new(String::from("какая-то ошибка")))
+        self.result.clone()
     }
 }
 
-struct TicketRequestError{
-    message: String
+struct TicketRequestError {
+    message: String,
 }
 
 impl TicketRequestError {
     fn new(message: String) -> Box<dyn TicketRequestErrorTrait> {
-        Box::new(TicketRequestError{
+        Box::new(TicketRequestError {
             message
         })
     }
@@ -37,28 +49,13 @@ impl TicketRequestErrorTrait for TicketRequestError {
     }
 }
 
-impl TicketTrait for GetTicketInfo{
-    fn sum(&self) -> f64 {
-        self.sum
-    }
+#[derive(Clone)]
+pub(super) struct Ticket;
 
-    fn date(&self) -> String {
-        self.date.clone()
-    }
+impl TicketTrait for Ticket {}
 
-    fn r#fn(&self) -> u64 {
-        self.r#fn
-    }
-
-    fn type_operation(&self) -> u8 {
-        self.type_operation
-    }
-
-    fn fiscal_document_id(&self) -> u64 {
-        self.fiscal_document_id
-    }
-
-    fn fiscal_sign(&self) -> u64 {
-        self.fiscal_sign
+impl Ticket {
+    fn new(response: GetMessageResponse) -> Arc<dyn TicketTrait> {
+        Arc::new(Ticket {})
     }
 }

@@ -1,8 +1,11 @@
+use std::sync::Arc;
+
 use reqwest::Client;
 use yaserde::ser::to_string;
 
-use crate::client::error::{ApiError, HttpClientError, OpenApiClientError};
+use crate::client::error::{FnsApiError, HttpClientError, OpenApiClientError};
 use crate::dto::ticket_request;
+use crate::dto::ticket_response::Envelope;
 use crate::models::auth_response::{AuthResponse, AuthResponseResult, AuthResponseToken};
 use crate::models::ticket::TicketResponse;
 use crate::traits::check_query::CheckQueryTrait;
@@ -50,7 +53,7 @@ impl OpenApiClient {
                         auth_response
                     }
                     Err(error) => {
-                        Err(OpenApiClientError::FnsApiError(ApiError { message: error.to_string() }))
+                        Err(OpenApiClientError::FnsApiError(FnsApiError { message: error.to_string() }))
                     }
                 }
             }
@@ -59,7 +62,7 @@ impl OpenApiClient {
             }
         }
     }
-    pub async fn get_ticket(&self, check_query: impl CheckQueryTrait) -> Result<Box<dyn TicketResponseTrait>, OpenApiClientError> {
+    pub async fn get_ticket(&self, check_query: impl CheckQueryTrait) -> Result<Arc<dyn TicketResponseTrait>, OpenApiClientError> {
         match &self.user_token {
             None => {
                 Err(OpenApiClientError::Error(String::from("Отсутствует FNS-OpenApi-UserToken")))
@@ -83,20 +86,29 @@ impl OpenApiClient {
                         }
                     }
                 };
-                let ticket_info_response = self.http_client.post("https://openapi.nalog.ru:8090/open-api/ais3/KktService/0.1")
+                println!("{}", to_string(&ticket_request).unwrap());
+                let ticket_info_query = self.http_client.post("https://openapi.nalog.ru:8090/open-api/ais3/KktService/0.1")
                     .body(to_string(&ticket_request).unwrap())
                     .header("FNS-OpenApi-Token", &self.master_token)
-                    .header("FNS-OpenApi-UserToken", &user_token.value)
-                    .send()
+                    .header("FNS-OpenApi-UserToken", &user_token.value);
+                let ticket_info_response = ticket_info_query.send()
                     .await;
                 match ticket_info_response {
                     Ok(response) => {
                         match response.text().await {
                             Ok(text) => {
-                                Ok(TicketResponse::new(text))
+                                let deserialize = crate::models::serde::Serde::from_xml::<Envelope>(&text);
+                                match deserialize {
+                                    Ok(dto) => {
+                                        TicketResponse::new(dto)
+                                    }
+                                    Err(xml_deserialization_error) => {
+                                        Err(OpenApiClientError::DeserializationError(xml_deserialization_error))
+                                    }
+                                }
                             }
                             Err(error) => {
-                                Err(OpenApiClientError::FnsApiError(ApiError { message: error.to_string() }))
+                                Err(OpenApiClientError::FnsApiError(FnsApiError { message: error.to_string() }))
                             }
                         }
                     }
@@ -104,7 +116,6 @@ impl OpenApiClient {
                         Err(OpenApiClientError::HttpClientError(HttpClientError::new(error)))
                     }
                 }
-                //
             }
         }
         // match ticket_info_response {

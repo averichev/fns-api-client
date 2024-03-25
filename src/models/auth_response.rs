@@ -48,5 +48,5 @@ pub struct AuthError{
 
 #[derive(Clone)]
 pub struct AuthResponseToken {
-    pub(crate) value: String,
+    pub value: String,
 }

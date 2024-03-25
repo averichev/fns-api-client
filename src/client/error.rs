@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone)]
 pub enum OpenApiClientError {
     DeserializationError(XmlDeserializationError),
-    FnsApiError(ApiError),
+    FnsApiError(FnsApiError),
     HttpClientError(HttpClientError),
     Error(String)
 }
@@ -28,7 +28,7 @@ impl Display for XmlDeserializationError {
 }
 
 #[derive(Clone)]
-pub struct ApiError {
+pub struct FnsApiError {
     pub message: String,
 }
 
