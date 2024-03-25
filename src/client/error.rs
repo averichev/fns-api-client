@@ -1,4 +1,7 @@
+use std::fmt::{Display, Formatter};
 use reqwest::Error;
+use serde::de::StdError;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone)]
 pub enum OpenApiClientError {
@@ -8,10 +11,22 @@ pub enum OpenApiClientError {
     Error(String)
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Serialize)]
 pub struct XmlDeserializationError {
-    pub message: String,
+    pub brief: String,
+    pub cause: String,
+    pub xml_string: String,
 }
+
+impl StdError for XmlDeserializationError {
+}
+
+impl Display for XmlDeserializationError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&*serde_json::to_string(&self.clone()).unwrap())
+    }
+}
+
 #[derive(Clone)]
 pub struct ApiError {
     pub message: String,

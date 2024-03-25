@@ -24,7 +24,12 @@ impl AuthResponse {
                 Ok(AuthResponse { result })
             }
             Err(message) => {
-                return Err(OpenApiClientError::DeserializationError(XmlDeserializationError{ message }));
+                return Err(OpenApiClientError::DeserializationError(
+                    XmlDeserializationError{
+                        cause: message,
+                        brief: "Ошибка десериализации ответа при авторизации".to_string(),
+                        xml_string: xml_string.to_string()
+                    }));
             }
         }
     }
