@@ -62,9 +62,12 @@ pub struct AuthResponse {
 }
 
 #[derive(YaDeserialize, YaSerialize)]
+#[yaserde(
+namespace = "tns: urn://x-artefacts-gnivc-ru/ais3/kkt/AuthService/types/1.0"
+)]
 pub struct Result {
     #[yaserde(prefix="tns", rename="Token")]
     pub token: String,
-    #[yaserde(prefix="tns", rename="expire")]
-    pub expire: String,
+    #[yaserde(prefix="tns", rename="ExpireTime")]
+    pub expire_time: String,
 }
