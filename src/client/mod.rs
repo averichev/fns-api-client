@@ -29,9 +29,10 @@ impl OpenApiClient {
     }
     pub async fn authorize(&mut self) -> Result<AuthResponse, OpenApiClientError> {
         let model = crate::models::auth_request::AuthRequest::new(&self.master_token);
-        let auth_request = self.http_client
+        let query = self.http_client
             .post("https://openapi.nalog.ru:8090/open-api/AuthService/0.1")
-            .body(model.to_string())
+            .body(model.to_string());
+        let auth_request = query
             .send()
             .await;
         match auth_request {
