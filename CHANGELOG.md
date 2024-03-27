@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1](https://github.com/averichev/fns-api-client/compare/v0.3.0...v0.3.1) - 2024-03-27
+
+### Other
+- Разные улучшения
+
 ## [0.3.0](https://github.com/averichev/fns-api-client/compare/v0.2.0...v0.3.0) - 2024-03-25
 
 ### Fixed
