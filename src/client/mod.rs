@@ -16,7 +16,7 @@ pub mod error;
 pub struct OpenApiClient {
     http_client: Client,
     master_token: String,
-    user_token: Option<AuthResponseToken>,
+    temp_token: Option<AuthResponseToken>,
 }
 
 impl OpenApiClient {
@@ -24,7 +24,7 @@ impl OpenApiClient {
         OpenApiClient {
             http_client: Client::new(),
             master_token: master_token.to_string(),
-            user_token: None,
+            temp_token: None,
         }
     }
     pub async fn authorize(&mut self) -> Result<AuthResponse, OpenApiClientError> {
@@ -44,7 +44,7 @@ impl OpenApiClient {
                             Ok(res) => {
                                 match res.result {
                                     AuthResponseResult::Ok(token) => {
-                                        self.user_token = Some(token)
+                                        self.temp_token = Some(token)
                                     }
                                     _ => {}
                                 }
@@ -64,11 +64,11 @@ impl OpenApiClient {
         }
     }
     pub async fn get_ticket(&self, check_query: impl CheckQueryTrait) -> Result<Arc<dyn TicketResponseTrait>, OpenApiClientError> {
-        match &self.user_token {
+        match &self.temp_token {
             None => {
                 Err(OpenApiClientError::Error(String::from("Отсутствует FNS-OpenApi-UserToken")))
             }
-            Some(user_token) => {
+            Some(temp_token) => {
                 let ticket_request = ticket_request::Envelope {
                     body: ticket_request::Body {
                         send_message_request: ticket_request::SendMessageRequest {
@@ -90,8 +90,8 @@ impl OpenApiClient {
                 println!("{}", to_string(&ticket_request).unwrap());
                 let ticket_info_query = self.http_client.post("https://openapi.nalog.ru:8090/open-api/ais3/KktService/0.1")
                     .body(to_string(&ticket_request).unwrap())
-                    .header("FNS-OpenApi-Token", &self.master_token)
-                    .header("FNS-OpenApi-UserToken", &user_token.value);
+                    .header("FNS-OpenApi-Token", &temp_token.value)
+                    .header("FNS-OpenApi-UserToken", "test");
                 let ticket_info_response = ticket_info_query.send()
                     .await;
                 match ticket_info_response {
