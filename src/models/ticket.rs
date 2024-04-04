@@ -1,8 +1,8 @@
 use std::sync::Arc;
+
 use crate::client::error::{FnsApiError, OpenApiClientError};
-use crate::dto::ticket_request::GetTicketInfo;
-use crate::dto::ticket_response::{Body, Envelope, GetMessageResponse};
-use crate::traits::ticket::{TicketRequestErrorTrait, TicketResponseResult, TicketResponseTrait, TicketTrait};
+use crate::dto::ticket_response::{Body, Envelope, SendMessageResponse};
+use crate::traits::ticket::{TicketRequestErrorTrait, TicketResponseResult, TicketResponseTrait, MessageTrait};
 
 #[derive(Clone)]
 pub(crate) struct TicketResponse {
@@ -15,12 +15,12 @@ impl TicketResponse {
             Body::Fault(fault) => {
                 Err(OpenApiClientError::FnsApiError(FnsApiError { message: fault.faultstring }))
             }
-            Body::GetMessageResponse(t) => {
-                Ok(TicketResponse::ok(Ticket::new(t)))
+            Body::SendMessageResponse(t) => {
+                Ok(TicketResponse::ok(Message::new(t)))
             }
         }
     }
-    fn ok(ticket: Arc<dyn TicketTrait>) -> Arc<dyn TicketResponseTrait> {
+    fn ok(ticket: Arc<dyn MessageTrait>) -> Arc<dyn TicketResponseTrait> {
         Arc::new(TicketResponse { result: TicketResponseResult::Ok(ticket) })
     }
 }
@@ -50,12 +50,18 @@ impl TicketRequestErrorTrait for TicketRequestError {
 }
 
 #[derive(Clone)]
-pub(super) struct Ticket;
+pub(super) struct Message{
+    id: String
+}
 
-impl TicketTrait for Ticket {}
+impl MessageTrait for Message {
+    fn id(&self) -> String {
+        self.id.clone()
+    }
+}
 
-impl Ticket {
-    fn new(response: GetMessageResponse) -> Arc<dyn TicketTrait> {
-        Arc::new(Ticket {})
+impl Message {
+    fn new(response: SendMessageResponse) -> Arc<dyn MessageTrait> {
+        Arc::new(Message { id: response.message_id })
     }
 }

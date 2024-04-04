@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
 use reqwest::Client;
+use yaserde::de::from_str;
 use yaserde::ser::to_string;
 
-use crate::client::error::{FnsApiError, HttpClientError, OpenApiClientError};
+use crate::client::error::{FnsApiError, HttpClientError, OpenApiClientError, XmlDeserializationError};
 use crate::dto::ticket_request;
 use crate::dto::ticket_response::Envelope;
 use crate::models::auth_response::{AuthResponse, AuthResponseResult, AuthResponseToken};

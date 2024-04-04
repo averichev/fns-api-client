@@ -18,8 +18,8 @@ namespace = "soap: http://schemas.xmlsoap.org/soap/envelope/"
 pub enum Body {
     #[yaserde(rename="Fault", prefix="soap", namespace="http://schemas.xmlsoap.org/soap/envelope/")]
     Fault(Fault),
-    #[yaserde(rename="GetMessageResponse" prefix="soap")]
-    GetMessageResponse(GetMessageResponse),
+    #[yaserde(rename="SendMessageResponse")]
+    SendMessageResponse(SendMessageResponse),
 }
 
 #[derive(YaDeserialize, YaSerialize)]
@@ -41,33 +41,10 @@ impl Default for Fault {
 }
 
 #[derive(YaDeserialize, YaSerialize)]
-pub struct GetMessageResponse {
-    #[yaserde(prefix="ns", rename="Message")]
-    pub message: Message,
-}
-
-#[derive(YaDeserialize, YaSerialize)]
-pub struct Message {
-    #[yaserde(rename="AuthResponse", prefix="tns")]
-    pub auth_response: AuthResponse,
-}
-
-#[derive(YaDeserialize, YaSerialize)]
 #[yaserde(
-namespace = "tns: urn://x-artefacts-gnivc-ru/ais3/kkt/AuthService/types/1.0"
+namespace = "urn://x-artefacts-gnivc-ru/inplat/servin/OpenApiAsyncMessageConsumerService/types/1.0"
 )]
-pub struct AuthResponse {
-    #[yaserde(prefix="tns", rename="Result")]
-    pub auth_app_info: Result,
-}
-
-#[derive(YaDeserialize, YaSerialize)]
-#[yaserde(
-namespace = "tns: urn://x-artefacts-gnivc-ru/ais3/kkt/AuthService/types/1.0"
-)]
-pub struct Result {
-    #[yaserde(prefix="tns", rename="Token")]
-    pub token: String,
-    #[yaserde(prefix="tns", rename="ExpireTime")]
-    pub expire_time: String,
+pub struct SendMessageResponse {
+    #[yaserde(rename="MessageId")]
+    pub message_id: String,
 }
