@@ -6,35 +6,35 @@ prefix = "soapenv",
 namespace = "soapenv: http://schemas.xmlsoap.org/soap/envelope/"
 namespace = "ns: urn://x-artefacts-gnivc-ru/inplat/servin/OpenApiAsyncMessageConsumerService/types/1.0"
 )]
-pub struct Envelope {
+pub(crate) struct Envelope {
     #[yaserde(rename = "Body")]
-    pub body: Body,
+    pub(crate) body: Body,
 }
 #[derive(YaDeserialize, YaSerialize)]
 #[yaserde(
 prefix = "soapenv"
 )]
-struct Body {
+pub(crate) struct Body {
     #[yaserde(rename = "GetMessagesRequest")]
-    get_messages_request: GetMessagesRequest,
+    pub(crate) get_messages_request: GetMessagesRequest,
 }
 
 #[derive(YaDeserialize, YaSerialize)]
 #[yaserde(
 prefix = "ns"
 )]
-struct GetMessagesRequest {
+pub(crate) struct GetMessagesRequest {
     #[yaserde(rename = "Expressions")]
-    expressions: Vec<Expressions>,
+    pub(crate) expressions: Vec<Expressions>,
 }
 #[derive(YaDeserialize, YaSerialize)]
 #[yaserde(
 prefix = "ns"
 )]
-struct Expressions {
+pub(crate) struct Expressions {
     #[yaserde(rename = "MessageId")]
-    message_id: String,
+    pub(crate) message_id: String,
     #[yaserde(rename = "UserToken")]
-    user_token: String
+    pub(crate) user_token: String
 }
 

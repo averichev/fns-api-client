@@ -1,12 +1,13 @@
 use std::sync::Arc;
 
-use reqwest::Client;
+use reqwest::{Client, Error, Response};
 use yaserde::ser::to_string;
 
 use crate::client::error::{FnsApiError, HttpClientError, OpenApiClientError};
 use crate::dto::ticket_request;
 use crate::dto::ticket_response::Envelope;
 use crate::models::auth_response::{AuthResponse, AuthResponseResult, AuthResponseToken};
+use crate::models::messages_request::MessagesRequest;
 use crate::models::ticket::TicketResponse;
 use crate::traits::check_query::CheckQueryTrait;
 use crate::traits::ticket::{Ticket, TicketResponseResult, TicketResponseTrait, TicketTrait};
@@ -67,12 +68,29 @@ impl OpenApiClient {
     }
     pub async fn get_ticket(&self, check_query: impl CheckQueryTrait) -> Result<Arc<dyn TicketTrait>, OpenApiClientError> {
         let ticket_response = self.get_ticket_response(check_query).await;
+        let temp_token = match &self.temp_token {
+            Some(token) => &token.value,
+            None => return Err(OpenApiClientError::Error(String::from("Отсутствует FNS-OpenApi-UserToken"))),
+        };
         match ticket_response {
             Ok(ticket_response) => {
                 match ticket_response.result() {
                     TicketResponseResult::Ok(message) => {
                         println!("{}", message.id());
-                        Ok(Arc::new(Ticket{}))
+                        let builder = self.http_client.post("https://openapi.nalog.ru:8090/open-api/ais3/KktService/0.1")
+                            .body(MessagesRequest::new(message, &self.user_token))
+                            .header("FNS-OpenApi-Token", temp_token)
+                            .header("FNS-OpenApi-UserToken", &self.user_token);
+                        let messages_response_result = builder.send()
+                            .await;
+                        match messages_response_result {
+                            Ok(response) => {
+                                Ok(Arc::new(Ticket{}))
+                            }
+                            Err(error) => {
+                                Err(OpenApiClientError::HttpClientError(HttpClientError::new(error)))
+                            }
+                        }
                     }
                     TicketResponseResult::Err(err) => {
                         Err(OpenApiClientError::FnsApiError(FnsApiError{ message: err.message() }))
