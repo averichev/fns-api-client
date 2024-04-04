@@ -1,6 +1,14 @@
 use std::sync::Arc;
 
-pub trait TicketResponseTrait{
+pub trait TicketTrait{}
+
+pub(crate) struct Ticket;
+
+impl TicketTrait for Ticket {
+
+}
+
+pub(crate) trait TicketResponseTrait{
     fn result(&self) -> TicketResponseResult;
 }
 

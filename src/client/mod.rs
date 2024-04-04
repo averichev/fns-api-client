@@ -1,30 +1,31 @@
 use std::sync::Arc;
 
 use reqwest::Client;
-use yaserde::de::from_str;
 use yaserde::ser::to_string;
 
-use crate::client::error::{FnsApiError, HttpClientError, OpenApiClientError, XmlDeserializationError};
+use crate::client::error::{FnsApiError, HttpClientError, OpenApiClientError};
 use crate::dto::ticket_request;
 use crate::dto::ticket_response::Envelope;
 use crate::models::auth_response::{AuthResponse, AuthResponseResult, AuthResponseToken};
 use crate::models::ticket::TicketResponse;
 use crate::traits::check_query::CheckQueryTrait;
-use crate::traits::ticket::TicketResponseTrait;
+use crate::traits::ticket::{Ticket, TicketResponseResult, TicketResponseTrait, TicketTrait};
 
 pub mod error;
 
 pub struct OpenApiClient {
     http_client: Client,
     master_token: String,
+    user_token: String,
     temp_token: Option<AuthResponseToken>,
 }
 
 impl OpenApiClient {
-    pub fn new(master_token: &String) -> Self {
+    pub fn new(master_token: &String, user_token: &String) -> Self {
         OpenApiClient {
             http_client: Client::new(),
             master_token: master_token.to_string(),
+            user_token: user_token.to_string(),
             temp_token: None,
         }
     }
@@ -64,7 +65,26 @@ impl OpenApiClient {
             }
         }
     }
-    pub async fn get_ticket(&self, check_query: impl CheckQueryTrait) -> Result<Arc<dyn TicketResponseTrait>, OpenApiClientError> {
+    pub async fn get_ticket(&self, check_query: impl CheckQueryTrait) -> Result<Arc<dyn TicketTrait>, OpenApiClientError> {
+        let ticket_response = self.get_ticket_response(check_query).await;
+        match ticket_response {
+            Ok(ticket_response) => {
+                match ticket_response.result() {
+                    TicketResponseResult::Ok(message) => {
+                        println!("{}", message.id());
+                        Ok(Arc::new(Ticket{}))
+                    }
+                    TicketResponseResult::Err(err) => {
+                        Err(OpenApiClientError::FnsApiError(FnsApiError{ message: err.message() }))
+                    }
+                }
+            }
+            Err(error) => {
+                Err(error)
+            }
+        }
+    }
+    async fn get_ticket_response(&self, check_query: impl CheckQueryTrait) -> Result<Arc<dyn TicketResponseTrait>, OpenApiClientError> {
         match &self.temp_token {
             None => {
                 Err(OpenApiClientError::Error(String::from("Отсутствует FNS-OpenApi-UserToken")))
@@ -88,11 +108,10 @@ impl OpenApiClient {
                         }
                     }
                 };
-                println!("{}", to_string(&ticket_request).unwrap());
                 let ticket_info_query = self.http_client.post("https://openapi.nalog.ru:8090/open-api/ais3/KktService/0.1")
                     .body(to_string(&ticket_request).unwrap())
                     .header("FNS-OpenApi-Token", &temp_token.value)
-                    .header("FNS-OpenApi-UserToken", "test");
+                    .header("FNS-OpenApi-UserToken", &self.user_token);
                 let ticket_info_response = ticket_info_query.send()
                     .await;
                 match ticket_info_response {
@@ -120,17 +139,5 @@ impl OpenApiClient {
                 }
             }
         }
-        // match ticket_info_response {
-        //     Ok(response) => {
-        //         let header = response.headers();
-        //         let content_type = header[CONTENT_TYPE].to_str().unwrap();
-        //         let mut headers = HeaderMap::new();
-        //         headers.insert(header::CONTENT_TYPE, content_type.parse().unwrap());
-        //         (StatusCode::OK, headers, response.text().await.unwrap().to_string()).into_response()
-        //     }
-        //     Err(e) => {
-        //         (StatusCode::BAD_GATEWAY, e.to_string()).into_response()
-        //     }
-        // }
     }
 }
