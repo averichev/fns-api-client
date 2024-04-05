@@ -36,8 +36,8 @@ struct TicketRequestError {
 }
 
 impl TicketRequestError {
-    fn new(message: String) -> Box<dyn TicketRequestErrorTrait> {
-        Box::new(TicketRequestError {
+    fn new(message: String) -> Arc<dyn TicketRequestErrorTrait> {
+        Arc::new(TicketRequestError {
             message
         })
     }

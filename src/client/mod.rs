@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use reqwest::{Client, Error, Response};
+use reqwest::Client;
 use yaserde::ser::to_string;
 
 use crate::client::error::{FnsApiError, HttpClientError, OpenApiClientError};
@@ -77,15 +77,28 @@ impl OpenApiClient {
                 match ticket_response.result() {
                     TicketResponseResult::Ok(message) => {
                         println!("{}", message.id());
+                        let body = MessagesRequest::new(message, &self.user_token);
+
                         let builder = self.http_client.post("https://openapi.nalog.ru:8090/open-api/ais3/KktService/0.1")
-                            .body(MessagesRequest::new(message, &self.user_token))
+                            .body(body.clone())
                             .header("FNS-OpenApi-Token", temp_token)
                             .header("FNS-OpenApi-UserToken", &self.user_token);
+                        println!("{} {}", self.user_token, temp_token);
+                        println!("{}", body);
                         let messages_response_result = builder.send()
                             .await;
                         match messages_response_result {
                             Ok(response) => {
-                                Ok(Arc::new(Ticket{}))
+                                let response_test_result = response.text().await;
+                                match response_test_result {
+                                    Ok(response_text) => {
+                                        println!("{}", response_text);
+                                        Ok(Arc::new(Ticket{}))
+                                    }
+                                    Err(error) => {
+                                        Err(OpenApiClientError::HttpClientError(HttpClientError::new(error)))
+                                    }
+                                }
                             }
                             Err(error) => {
                                 Err(OpenApiClientError::HttpClientError(HttpClientError::new(error)))
@@ -126,8 +139,10 @@ impl OpenApiClient {
                         }
                     }
                 };
+                let body = to_string(&ticket_request).unwrap();
+                println!("{}", body.clone());
                 let ticket_info_query = self.http_client.post("https://openapi.nalog.ru:8090/open-api/ais3/KktService/0.1")
-                    .body(to_string(&ticket_request).unwrap())
+                    .body(body)
                     .header("FNS-OpenApi-Token", &temp_token.value)
                     .header("FNS-OpenApi-UserToken", &self.user_token);
                 let ticket_info_response = ticket_info_query.send()

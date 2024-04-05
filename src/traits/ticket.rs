@@ -8,7 +8,7 @@ impl TicketTrait for Ticket {
 
 }
 
-pub(crate) trait TicketResponseTrait{
+pub trait TicketResponseTrait: Send + Sync{
     fn result(&self) -> TicketResponseResult;
 }
 
@@ -18,10 +18,10 @@ pub enum TicketResponseResult{
     Err(Arc<dyn TicketRequestErrorTrait>)
 }
 
-pub trait MessageTrait {
+pub trait MessageTrait: Send + Sync {
     fn id(&self) -> String;
 }
 
-pub trait TicketRequestErrorTrait{
+pub trait TicketRequestErrorTrait: Send + Sync{
     fn message(&self) -> String;
 }

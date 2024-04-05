@@ -41,7 +41,7 @@ pub struct GetTicketRequest {
 #[derive(YaDeserialize, YaSerialize)]
 pub struct GetTicketInfo {
     #[yaserde(prefix="tns", rename="Sum")]
-    pub sum: f64,
+    pub sum: u64,
     #[yaserde(prefix="tns", rename="Date")]
     pub date: String,
     #[yaserde(prefix="tns", rename="Fn")]
