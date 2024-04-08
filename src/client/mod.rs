@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use chrono::{NaiveDateTime, ParseError};
 
 use reqwest::Client;
 use yaserde::ser::to_string;
@@ -121,6 +122,11 @@ impl OpenApiClient {
                 Err(OpenApiClientError::Error(String::from("Отсутствует FNS-OpenApi-UserToken")))
             }
             Some(temp_token) => {
+                fn convert_datetime(datetime: String) -> Result<String, ParseError> {
+                    let parsed_date = NaiveDateTime::parse_from_str(datetime.as_str(), "%Y%m%dT%H%M")?;
+                    Ok(parsed_date.format("%Y-%m-%dT%H:%M:%S").to_string())
+                }
+
                 let ticket_request = ticket_request::Envelope {
                     body: ticket_request::Body {
                         send_message_request: ticket_request::SendMessageRequest {
@@ -128,7 +134,7 @@ impl OpenApiClient {
                                 get_ticket_request: ticket_request::GetTicketRequest {
                                     get_ticket_info: ticket_request::GetTicketInfo {
                                         sum: check_query.s(),
-                                        date: check_query.t(),
+                                        date: convert_datetime(check_query.t()).unwrap(),
                                         r#fn: check_query.r#fn(),
                                         type_operation: check_query.n(),
                                         fiscal_document_id: check_query.i(),

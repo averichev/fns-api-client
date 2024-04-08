@@ -14,4 +14,5 @@ yaserde = "0.10.0"
 yaserde_derive = "0.10.0"
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = {version = "1.0.114", features = ["default"]}
-validator = { version = "0.17.0", features = ["derive"] }
+validator = { version = "0.18.0", features = ["derive"] }
+chrono = {version = "0.4.37"}
