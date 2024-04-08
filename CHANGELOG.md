@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0](https://github.com/averichev/fns-api-client/compare/v0.3.0...v0.4.0) - 2024-04-08
+
+### Fixed
+- Конвертирование формата даты
+- Префиксы в DTO
+- Разные правки
+- Разные правки
+- Разные правки
+- Разные правки
+- Разные правки
+
+### Other
+- Разные улучшения
+
 ## [0.3.0](https://github.com/averichev/fns-api-client/compare/v0.2.0...v0.3.0) - 2024-03-25
 
 ### Fixed
