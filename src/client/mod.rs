@@ -94,6 +94,7 @@ impl OpenApiClient {
                                 match response_test_result {
                                     Ok(response_text) => {
                                         println!("{}", response_text);
+                                        let res = crate::models::serde::Serde::from_xml::<crate::dto::messages_response::Envelope>(response_text.as_str());
                                         Ok(Arc::new(Ticket{}))
                                     }
                                     Err(error) => {
