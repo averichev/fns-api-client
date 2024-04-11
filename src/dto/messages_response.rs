@@ -24,6 +24,9 @@ pub(crate) struct GetMessagesResponse {
     pub(crate) messages: Vec<Message>,
 }
 #[derive(YaDeserialize, YaSerialize)]
+#[yaserde(
+namespace = "urn://x-artefacts-gnivc-ru/inplat/servin/OpenApiAsyncMessageConsumerService/types/1.0"
+)]
 pub(crate) struct Message {
     #[yaserde(rename = "MessageId")]
     pub(crate) message_id: String,
