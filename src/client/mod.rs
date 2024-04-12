@@ -94,8 +94,8 @@ impl OpenApiClient {
                                 match response_test_result {
                                     Ok(response_text) => {
                                         println!("{}", response_text);
-                                        let res = crate::models::serde::Serde::from_xml::<crate::dto::messages_response::Envelope>(response_text.as_str());
-                                        Ok(Arc::new(Ticket{}))
+                                        let res = serde_xml_rs::from_str::<crate::dto::messages_response::Envelope>(response_text.as_str());
+                                        Ok(Arc::new(Ticket {}))
                                     }
                                     Err(error) => {
                                         Err(OpenApiClientError::HttpClientError(HttpClientError::new(error)))
@@ -108,7 +108,7 @@ impl OpenApiClient {
                         }
                     }
                     TicketResponseResult::Err(err) => {
-                        Err(OpenApiClientError::FnsApiError(FnsApiError{ message: err.message() }))
+                        Err(OpenApiClientError::FnsApiError(FnsApiError { message: err.message() }))
                     }
                 }
             }

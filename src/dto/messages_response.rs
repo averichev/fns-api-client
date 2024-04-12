@@ -1,58 +1,55 @@
-use yaserde_derive::{YaDeserialize, YaSerialize};
+use serde::Deserialize;
 
-#[derive(YaDeserialize, YaSerialize)]
-#[yaserde(
-prefix = "soap",
-namespace = "soap: http://schemas.xmlsoap.org/soap/envelope/"
-)]
+#[derive(Debug, Deserialize)]
 pub(crate) struct Envelope {
-    #[yaserde(rename = "Body", prefix = "soap")]
-    pub(crate) body: Body,
+    #[serde(rename = "Body")]
+    body: Body,
 }
-#[derive(YaDeserialize, YaSerialize)]
+
+#[derive(Debug, Deserialize)]
 pub(crate) struct Body {
-    #[yaserde(rename = "GetMessagesResponse")]
-    pub(crate) get_messages_response: GetMessagesResponse,
+    #[serde(rename = "GetMessagesResponse")]
+    get_messages_response: GetMessagesResponse,
 }
 
-#[derive(YaDeserialize, YaSerialize)]
-#[yaserde(
-namespace = "urn://x-artefacts-gnivc-ru/inplat/servin/OpenApiAsyncMessageConsumerService/types/1.0"
-)]
+#[derive(Debug, Deserialize)]
 pub(crate) struct GetMessagesResponse {
-    #[yaserde(rename = "Messages")]
-    pub(crate) messages: Vec<Message>,
+    #[serde(rename = "Messages")]
+    messages: Vec<Messages>,
 }
-#[derive(YaDeserialize, YaSerialize)]
-#[yaserde(
-namespace = "urn://x-artefacts-gnivc-ru/inplat/servin/OpenApiAsyncMessageConsumerService/types/1.0"
-)]
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct Messages {
+    #[serde(rename = "MessageId")]
+    message_id: String,
+    #[serde(rename = "Result")]
+    result: Result,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct Result {
+    #[serde(rename = "ProcessingStatus")]
+    processing_status: String,
+    #[serde(rename = "Message")]
+    message: Option<Message>,
+}
+
+#[derive(Debug, Deserialize)]
 pub(crate) struct Message {
-    #[yaserde(rename = "MessageId")]
-    pub(crate) message_id: String,
-    #[yaserde(rename = "Result")]
-    pub(crate) result: Result
+    #[serde(rename = "GetTicketResponse")]
+    get_ticket_response: GetTicketResponse,
 }
 
-#[derive(YaDeserialize, YaSerialize)]
-pub(crate) struct Result{
-    #[yaserde(rename = "Message")]
-    pub(crate) result_message: ResultMessage
+#[derive(Debug, Deserialize)]
+pub(crate) struct GetTicketResponse {
+    #[serde(rename = "Result")]
+    result: TicketResult,
 }
 
-#[derive(YaDeserialize, YaSerialize)]
-pub(crate) struct ResultMessage{
-    #[yaserde(rename = "GetTicketResponse", namespace = "urn://x-artefacts-gnivc-ru/ais3/kkt/KktTicketService/types/1.0")]
-    pub(crate) get_ticket_response: GetTicketResponse
-}
-
-#[derive(YaDeserialize, YaSerialize)]
-pub(crate) struct GetTicketResponse{
-    #[yaserde(rename = "Result")]
-    pub(crate) result: GetTicketResponseResult
-}
-#[derive(YaDeserialize, YaSerialize)]
-pub(crate) struct GetTicketResponseResult{
-    #[yaserde(rename = "Ticket")]
-    pub(crate) ticket: String
+#[derive(Debug, Deserialize)]
+pub(crate) struct TicketResult {
+    #[serde(rename = "Ticket")]
+    ticket: String,
+    #[serde(rename = "Code")]
+    code: String,
 }
