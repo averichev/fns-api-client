@@ -88,7 +88,7 @@ impl OpenApiClient {
                             attempt += 1;
                         }
                         MessageStatus::Unknown => {
-                            return Err(OpenApiClientError::Error("Неивестный статус сообщениея".to_string()))
+                            return Err(OpenApiClientError::Error("Неизвестный статус сообщения".to_string()))
                         }
                     }
                 },

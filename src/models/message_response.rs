@@ -70,11 +70,10 @@ impl MessageResponse {
 
 impl Envelope {
     pub(crate) fn status(&self) -> MessageStatus {
-        // Assuming there is always at least one message (check and handle accordingly in real use).
         let status_str = &self.body.get_messages_response.messages[0].result.processing_status;
         match status_str.as_ref() {
-            "Complete" => MessageStatus::Complete,
-            "Processing" => MessageStatus::Processing,
+            "COMPLETED" => MessageStatus::Complete,
+            "PROCESSING" => MessageStatus::Processing,
             _ => MessageStatus::Unknown,
         }
     }
