@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1](https://github.com/averichev/fns-api-client/compare/v0.4.0...v0.4.1) - 2024-04-15
+
+### Fixed
+- Serde
+- Bad namespace for - ошибка десериализации
+
+### Other
+- Доработка с учетом статуса Message
+- Доработка с учетом статуса Message
+- *(BROKEN)* Доработка с учетом статуса Message
+- MessageResponse
+
 ## [0.4.0](https://github.com/averichev/fns-api-client/compare/v0.3.0...v0.4.0) - 2024-04-08
 
 ### Fixed
