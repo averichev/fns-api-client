@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use chrono::{NaiveDateTime, ParseError};
+use tokio::time::{sleep, Duration};
 
 use reqwest::Client;
 use yaserde::ser::to_string;
@@ -8,6 +9,7 @@ use crate::client::error::{FnsApiError, HttpClientError, OpenApiClientError};
 use crate::dto::ticket_request;
 use crate::dto::ticket_response::Envelope;
 use crate::models::auth_response::{AuthResponse, AuthResponseResult, AuthResponseToken};
+use crate::models::message_response::MessageResponse;
 use crate::models::messages_request::MessagesRequest;
 use crate::models::ticket::TicketResponse;
 use crate::traits::check_query::CheckQueryTrait;
@@ -67,7 +69,28 @@ impl OpenApiClient {
             }
         }
     }
-    pub async fn get_ticket(&self, check_query: impl CheckQueryTrait) -> Result<Arc<dyn TicketTrait>, OpenApiClientError> {
+    pub async fn get_ticket_with_retry(&self, check_query: impl CheckQueryTrait + Clone) -> Result<Arc<dyn TicketTrait>, OpenApiClientError> {
+        let mut attempt = 0;
+        let max_attempts = 5;
+        let base_delay = Duration::from_secs(1);
+
+        while attempt < max_attempts {
+            match self.get_ticket(check_query.clone()).await {
+                Ok(ticket) => {
+
+                    // let delay = base_delay * 2u32.pow(attempt);
+                    // println!("Retry attempt {}: waiting for {:?} before next retry", attempt + 1, delay);
+                    // sleep(delay).await;
+                    // attempt += 1;
+                },
+                Err(e) => {
+                    Err(e)
+                }
+            }
+        }
+        Err(OpenApiClientError::Error(String::from("Failed after max retry attempts")))
+    }
+    pub async fn get_ticket(&self, check_query: impl CheckQueryTrait) -> Result<crate::dto::messages_response::Envelope, OpenApiClientError> {
         let ticket_response = self.get_ticket_response(check_query).await;
         let temp_token = match &self.temp_token {
             Some(token) => &token.value,
@@ -77,35 +100,9 @@ impl OpenApiClient {
             Ok(ticket_response) => {
                 match ticket_response.result() {
                     TicketResponseResult::Ok(message) => {
-                        println!("{}", message.id());
-                        let body = MessagesRequest::new(message, &self.user_token);
-
-                        let builder = self.http_client.post("https://openapi.nalog.ru:8090/open-api/ais3/KktService/0.1")
-                            .body(body.clone())
-                            .header("FNS-OpenApi-Token", temp_token)
-                            .header("FNS-OpenApi-UserToken", &self.user_token);
-                        println!("{} {}", self.user_token, temp_token);
-                        println!("{}", body);
-                        let messages_response_result = builder.send()
-                            .await;
-                        match messages_response_result {
-                            Ok(response) => {
-                                let response_test_result = response.text().await;
-                                match response_test_result {
-                                    Ok(response_text) => {
-                                        println!("{}", response_text);
-                                        let res = serde_xml_rs::from_str::<crate::dto::messages_response::Envelope>(response_text.as_str());
-                                        Ok(Arc::new(Ticket {}))
-                                    }
-                                    Err(error) => {
-                                        Err(OpenApiClientError::HttpClientError(HttpClientError::new(error)))
-                                    }
-                                }
-                            }
-                            Err(error) => {
-                                Err(OpenApiClientError::HttpClientError(HttpClientError::new(error)))
-                            }
-                        }
+                        let response = MessageResponse::new(Arc::new(self.http_client.clone()), Arc::new(self.user_token.clone()), Arc::new(*temp_token))
+                            .send(message).await;
+                        response
                     }
                     TicketResponseResult::Err(err) => {
                         Err(OpenApiClientError::FnsApiError(FnsApiError { message: err.message() }))
