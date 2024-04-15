@@ -9,7 +9,7 @@ use crate::client::error::{FnsApiError, HttpClientError, OpenApiClientError};
 use crate::dto::ticket_request;
 use crate::dto::ticket_response::Envelope;
 use crate::models::auth_response::{AuthResponse, AuthResponseResult, AuthResponseToken};
-use crate::models::message_response::MessageResponse;
+use crate::models::message_response::{MessageResponse, MessageStatus};
 use crate::models::messages_request::MessagesRequest;
 use crate::models::ticket::TicketResponse;
 use crate::traits::check_query::CheckQueryTrait;
@@ -77,14 +77,23 @@ impl OpenApiClient {
         while attempt < max_attempts {
             match self.get_ticket(check_query.clone()).await {
                 Ok(ticket) => {
-
-                    // let delay = base_delay * 2u32.pow(attempt);
-                    // println!("Retry attempt {}: waiting for {:?} before next retry", attempt + 1, delay);
-                    // sleep(delay).await;
-                    // attempt += 1;
+                    match ticket.status() {
+                        MessageStatus::Complete => {
+                            return Ok(Arc::new(Ticket{}))
+                        }
+                        MessageStatus::Processing => {
+                            let delay = base_delay * 2u32.pow(attempt);
+                            println!("Retry attempt {}: waiting for {:?} before next retry", attempt + 1, delay);
+                            sleep(delay).await;
+                            attempt += 1;
+                        }
+                        MessageStatus::Unknown => {
+                            return Err(OpenApiClientError::Error("Неивестный статус сообщениея".to_string()))
+                        }
+                    }
                 },
                 Err(e) => {
-                    Err(e)
+                    return Err(e)
                 }
             }
         }
@@ -100,7 +109,7 @@ impl OpenApiClient {
             Ok(ticket_response) => {
                 match ticket_response.result() {
                     TicketResponseResult::Ok(message) => {
-                        let response = MessageResponse::new(Arc::new(self.http_client.clone()), Arc::new(self.user_token.clone()), Arc::new(*temp_token))
+                        let response = MessageResponse::new(Arc::new(self.http_client.clone()), Arc::new(self.user_token.clone()), Arc::new(temp_token.clone()))
                             .send(message).await;
                         response
                     }

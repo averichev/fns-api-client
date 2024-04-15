@@ -3,19 +3,19 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub(crate) struct Envelope {
     #[serde(rename = "Body")]
-    body: Body,
+    pub(crate) body: Body,
 }
 
 #[derive(Debug, Deserialize)]
 pub(crate) struct Body {
     #[serde(rename = "GetMessagesResponse")]
-    get_messages_response: GetMessagesResponse,
+    pub(crate) get_messages_response: GetMessagesResponse,
 }
 
 #[derive(Debug, Deserialize)]
 pub(crate) struct GetMessagesResponse {
     #[serde(rename = "Messages")]
-    messages: Vec<Messages>,
+    pub(crate) messages: Vec<Messages>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -23,13 +23,13 @@ pub(crate) struct Messages {
     #[serde(rename = "MessageId")]
     message_id: String,
     #[serde(rename = "Result")]
-    result: Result,
+    pub(crate) result: Result,
 }
 
 #[derive(Debug, Deserialize)]
 pub(crate) struct Result {
     #[serde(rename = "ProcessingStatus")]
-    processing_status: String,
+    pub(crate) processing_status: String,
     #[serde(rename = "Message")]
     message: Option<Message>,
 }
