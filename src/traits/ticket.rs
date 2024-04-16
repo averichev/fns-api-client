@@ -1,3 +1,4 @@
+use std::fmt::{Debug, Display};
 use std::sync::Arc;
 
 pub trait TicketTrait{}
@@ -18,7 +19,7 @@ pub enum TicketResponseResult{
     Err(Arc<dyn TicketRequestErrorTrait>)
 }
 
-pub trait MessageTrait: Send + Sync {
+pub trait MessageTrait: Send + Sync + Debug{
     fn id(&self) -> String;
 }
 

@@ -19,7 +19,7 @@ pub(crate) struct Body {
 #[derive(YaDeserialize, YaSerialize)]
 pub(crate) struct GetMessagesRequest {
     #[yaserde(rename = "Expressions", prefix = "ns")]
-    pub(crate) expressions: Vec<Expressions>,
+    pub(crate) expressions: Expressions,
 }
 #[derive(YaDeserialize, YaSerialize)]
 pub(crate) struct Expressions {

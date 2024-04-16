@@ -49,7 +49,7 @@ impl TicketRequestErrorTrait for TicketRequestError {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub(super) struct Message{
     id: String
 }

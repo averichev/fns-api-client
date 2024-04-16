@@ -1,16 +1,16 @@
 use std::sync::Arc;
-use chrono::{NaiveDateTime, ParseError};
-use tokio::time::{sleep, Duration};
 
+use chrono::{NaiveDateTime, ParseError};
 use reqwest::Client;
+use tokio::time::{Duration, sleep};
 use yaserde::ser::to_string;
+use log::debug;
 
 use crate::client::error::{FnsApiError, HttpClientError, OpenApiClientError};
 use crate::dto::ticket_request;
 use crate::dto::ticket_response::Envelope;
 use crate::models::auth_response::{AuthResponse, AuthResponseResult, AuthResponseToken};
 use crate::models::message_response::{MessageResponse, MessageStatus};
-use crate::models::messages_request::MessagesRequest;
 use crate::models::ticket::TicketResponse;
 use crate::traits::check_query::CheckQueryTrait;
 use crate::traits::ticket::{Ticket, TicketResponseResult, TicketResponseTrait, TicketTrait};
@@ -34,6 +34,7 @@ impl OpenApiClient {
         }
     }
     pub async fn authorize(&mut self) -> Result<AuthResponse, OpenApiClientError> {
+        debug!("Авторизация");
         let model = crate::models::auth_request::AuthRequest::new(&self.master_token);
         let query = self.http_client
             .post("https://openapi.nalog.ru:8090/open-api/AuthService/0.1")
@@ -50,7 +51,8 @@ impl OpenApiClient {
                             Ok(res) => {
                                 match res.result {
                                     AuthResponseResult::Ok(token) => {
-                                        self.temp_token = Some(token)
+                                        self.temp_token = Some(token);
+                                        debug!("Токен получен");
                                     }
                                     _ => {}
                                 }
@@ -77,7 +79,13 @@ impl OpenApiClient {
         while attempt < max_attempts {
             match self.get_ticket(check_query.clone()).await {
                 Ok(ticket) => {
-                    match ticket.status() {
+                    debug!("Ответ {:?}", ticket);
+                    let status = match ticket.status() {
+                        Some(status) => status,
+                        None => return Err(OpenApiClientError::Error(String::from("Ошибка получения статуса"))),
+                    };
+                    debug!("Статус {:?}", status);
+                    match status {
                         MessageStatus::Complete => {
                             return Ok(Arc::new(Ticket{}))
                         }
@@ -100,15 +108,17 @@ impl OpenApiClient {
         Err(OpenApiClientError::Error(String::from("Failed after max retry attempts")))
     }
     pub async fn get_ticket(&self, check_query: impl CheckQueryTrait) -> Result<crate::dto::messages_response::Envelope, OpenApiClientError> {
+        debug!("Получение чека");
         let ticket_response = self.get_ticket_response(check_query).await;
         let temp_token = match &self.temp_token {
-            Some(token) => &token.value,
+            Some(token) => token,
             None => return Err(OpenApiClientError::Error(String::from("Отсутствует FNS-OpenApi-UserToken"))),
         };
         match ticket_response {
             Ok(ticket_response) => {
                 match ticket_response.result() {
                     TicketResponseResult::Ok(message) => {
+                        debug!("Сообщение {:?}", message);
                         let response = MessageResponse::new(Arc::new(self.http_client.clone()), Arc::new(self.user_token.clone()), Arc::new(temp_token.clone()))
                             .send(message).await;
                         response
@@ -153,6 +163,7 @@ impl OpenApiClient {
                     }
                 };
                 let body = to_string(&ticket_request).unwrap();
+                debug!("Отправка запроса на получение чека");
                 println!("{}", body.clone());
                 let ticket_info_query = self.http_client.post("https://openapi.nalog.ru:8090/open-api/ais3/KktService/0.1")
                     .body(body)
@@ -167,6 +178,9 @@ impl OpenApiClient {
                                 let deserialize = crate::models::serde::Serde::from_xml::<Envelope>(&text);
                                 match deserialize {
                                     Ok(dto) => {
+                                        debug!("Ответ получен");
+                                        debug!("{:?}", dto);
+                                        debug!("{}", text);
                                         TicketResponse::new(dto)
                                     }
                                     Err(xml_deserialization_error) => {

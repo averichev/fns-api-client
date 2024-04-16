@@ -23,7 +23,9 @@ pub(crate) struct Messages {
     #[serde(rename = "MessageId")]
     message_id: String,
     #[serde(rename = "Result")]
-    pub(crate) result: Result,
+    pub(crate) result: Option<Result>,
+    #[serde(rename = "Fault")]
+    pub(crate) fault: Option<Fault>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -52,4 +54,9 @@ pub(crate) struct TicketResult {
     ticket: String,
     #[serde(rename = "Code")]
     code: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct  Fault{
+    message: String
 }

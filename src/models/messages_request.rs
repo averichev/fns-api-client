@@ -10,9 +10,7 @@ impl MessagesRequest {
         let dto = Envelope {
             body: Body {
                 get_messages_request: GetMessagesRequest {
-                    expressions: vec![
-                        Expressions { message_id: message.id(), user_token: user_token.to_string() }
-                    ]
+                    expressions: Expressions { message_id: message.id(), user_token: user_token.to_string() }
                 }
             }
         };

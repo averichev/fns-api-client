@@ -1,6 +1,6 @@
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
-#[derive(YaDeserialize, YaSerialize)]
+#[derive(YaDeserialize, YaSerialize, Debug)]
 #[yaserde(
 prefix = "soap",
 namespace = "soap: http://schemas.xmlsoap.org/soap/envelope/"
@@ -10,7 +10,7 @@ pub struct Envelope {
     pub body: Body,
 }
 
-#[derive(YaDeserialize, YaSerialize)]
+#[derive(YaDeserialize, YaSerialize, Debug)]
 #[yaserde(
 prefix = "soap",
 namespace = "soap: http://schemas.xmlsoap.org/soap/envelope/"
@@ -22,7 +22,7 @@ pub enum Body {
     SendMessageResponse(SendMessageResponse),
 }
 
-#[derive(YaDeserialize, YaSerialize)]
+#[derive(YaDeserialize, YaSerialize, Debug)]
 pub struct Fault {
     pub faultcode: String,
     pub faultstring: String
@@ -40,7 +40,7 @@ impl Default for Fault {
     }
 }
 
-#[derive(YaDeserialize, YaSerialize)]
+#[derive(YaDeserialize, YaSerialize, Debug)]
 #[yaserde(
 namespace = "urn://x-artefacts-gnivc-ru/inplat/servin/OpenApiAsyncMessageConsumerService/types/1.0"
 )]

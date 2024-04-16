@@ -1,0 +1,13 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <GetMessagesResponse
+                xmlns="urn://x-artefacts-gnivc-ru/inplat/servin/OpenApiAsyncMessageConsumerService/types/1.0">
+            <Messages>
+                <MessageId>dfa175de-edb6-4d07-a9be-3c3ee71c56ac</MessageId>
+                <Fault xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="MessageNotFoundFault">
+                    <Message>По переданным параметрам сообщение не найдено</Message>
+                </Fault>
+            </Messages>
+        </GetMessagesResponse>
+    </soap:Body>
+</soap:Envelope>
