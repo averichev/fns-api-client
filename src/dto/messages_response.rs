@@ -28,30 +28,30 @@ pub(crate) struct Messages {
     pub(crate) fault: Option<Fault>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub(crate) struct Result {
     #[serde(rename = "ProcessingStatus")]
     pub(crate) processing_status: String,
     #[serde(rename = "Message")]
-    message: Option<Message>,
+    pub(crate) message: Option<Message>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub(crate) struct Message {
     #[serde(rename = "GetTicketResponse")]
-    get_ticket_response: GetTicketResponse,
+    pub(crate) get_ticket_response: GetTicketResponse,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub(crate) struct GetTicketResponse {
     #[serde(rename = "Result")]
-    result: TicketResult,
+    pub(crate) result: TicketResult,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub(crate) struct TicketResult {
     #[serde(rename = "Ticket")]
-    ticket: String,
+    pub(crate) ticket: String,
     #[serde(rename = "Code")]
     code: String,
 }

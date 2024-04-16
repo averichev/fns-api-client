@@ -3,7 +3,7 @@ use reqwest::Error;
 use serde::de::StdError;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub enum OpenApiClientError {
     DeserializationError(XmlDeserializationError),
     FnsApiError(FnsApiError),
@@ -27,12 +27,12 @@ impl Display for XmlDeserializationError {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct FnsApiError {
     pub message: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct HttpClientError{
     pub message: String
 }

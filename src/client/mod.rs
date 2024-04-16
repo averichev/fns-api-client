@@ -5,6 +5,7 @@ use reqwest::Client;
 use tokio::time::{Duration, sleep};
 use yaserde::ser::to_string;
 use log::debug;
+use serde_json::from_str;
 
 use crate::client::error::{FnsApiError, HttpClientError, OpenApiClientError};
 use crate::dto::ticket_request;
@@ -71,7 +72,7 @@ impl OpenApiClient {
             }
         }
     }
-    pub async fn get_ticket_with_retry(&self, check_query: impl CheckQueryTrait + Clone) -> Result<Arc<dyn TicketTrait>, OpenApiClientError> {
+    pub async fn get_ticket_with_retry(&self, check_query: impl CheckQueryTrait + Clone) -> Result<Arc<crate::dto::ticket::Ticket>, OpenApiClientError> {
         let mut attempt = 0;
         let max_attempts = 5;
         let base_delay = Duration::from_secs(1);
@@ -87,7 +88,7 @@ impl OpenApiClient {
                     debug!("Статус {:?}", status);
                     match status {
                         MessageStatus::Complete => {
-                            return Ok(Arc::new(Ticket{}))
+                            return Ok(Arc::new(from_str(ticket.ticket_json().as_str()).unwrap()))
                         }
                         MessageStatus::Processing => {
                             let delay = base_delay * 2u32.pow(attempt);

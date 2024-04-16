@@ -94,6 +94,10 @@ impl Envelope {
         }
 
     }
+    pub(crate) fn ticket_json(&self) -> String{
+        let res = &self.body.get_messages_response.messages[0];
+        res.result.as_ref().unwrap().message.as_ref().unwrap().get_ticket_response.result.ticket.clone()
+    }
 }
 
 #[derive(Debug)]
