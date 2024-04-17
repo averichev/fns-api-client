@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct Ticket {
     id: u64,
     ofd_id: String,
@@ -11,6 +12,7 @@ pub struct Ticket {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 struct Content {
     message_fiscal_sign: u64,
     code: u32,
@@ -40,10 +42,12 @@ struct Content {
     provision_sum: u32,
     region: String,
     number_kkt: String,
+    #[serde(rename = "redefine_mask")]
     redefine_mask: u32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 struct Item {
     name: String,
     price: u32,

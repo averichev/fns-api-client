@@ -1,0 +1,83 @@
+{
+  "id": 5134214235906192128,
+  "ofdId": "ofd1",
+  "receiveDate": "2024-01-23T15:16:53Z",
+  "subtype": "receipt",
+  "address": "150014,Россия,Ярославская область,,г Ярославль г.п.,,,ул Большая Октябрьская элем. улично-дорожн.сети,,д. д 73,,,,",
+  "content": {
+    "messageFiscalSign": 9297145668126279108,
+    "code": 3,
+    "fiscalDocumentFormatVer": 4,
+    "fiscalDriveNumber": "7281440500477484",
+    "kktRegId": "0000705127011954    ",
+    "userInn": "7602099286  ",
+    "fiscalDocumentNumber": 74694,
+    "dateTime": 1706033760,
+    "fiscalSign": 435331208,
+    "shiftNumber": 281,
+    "requestNumber": 270,
+    "operationType": 1,
+    "totalSum": 11781,
+    "operator": "Рахманова",
+    "items": [
+      {
+        "name": "Яблоки Гала",
+        "price": 14990,
+        "quantity": 0.154,
+        "nds": 6,
+        "ndsSum": 2308,
+        "productType": 1,
+        "paymentType": 4,
+        "sum": 2308,
+        "itemsQuantityMeasure": 11
+      },
+      {
+        "name": "Яблоки Айдаред 1сорт",
+        "price": 14990,
+        "quantity": 0.166,
+        "nds": 6,
+        "ndsSum": 2488,
+        "productType": 1,
+        "paymentType": 4,
+        "sum": 2488,
+        "itemsQuantityMeasure": 11
+      },
+      {
+        "name": "Яблоки Грени Смит Азербайджан",
+        "price": 15990,
+        "quantity": 0.126,
+        "nds": 6,
+        "ndsSum": 2015,
+        "productType": 1,
+        "paymentType": 4,
+        "sum": 2015,
+        "itemsQuantityMeasure": 11
+      },
+      {
+        "name": "ЕМВ безалк.напиток 0,5л Барбарис ст/б",
+        "price": 4970,
+        "quantity": 1,
+        "nds": 6,
+        "ndsSum": 4970,
+        "productType": 1,
+        "paymentType": 4,
+        "sum": 4970,
+        "itemsQuantityMeasure": 0
+      }
+    ],
+    "ndsNo": 11781,
+    "user": "ООО \"Формат\"",
+    "retailPlaceAddress": "150014 Ярославская область г.Ярославль ул. Б. Октябрьская, д.73",
+    "retailPlace": "Магазин \"формат\"",
+    "appliedTaxationType": 4,
+    "fnsUrl": "www.nalog.gov.ru",
+    "cashTotalSum": 0,
+    "ecashTotalSum": 11781,
+    "prepaidSum": 0,
+    "creditSum": 0,
+    "provisionSum": 0,
+    "region": "76",
+    "numberKkt": "0128025647",
+    "redefine_mask": 0
+  }
+}

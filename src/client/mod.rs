@@ -88,7 +88,10 @@ impl OpenApiClient {
                     debug!("Статус {:?}", status);
                     match status {
                         MessageStatus::Complete => {
-                            return Ok(Arc::new(from_str(ticket.ticket_json().as_str()).unwrap()))
+                            let json_string = ticket.ticket_json();
+                            debug!("{}", json_string.clone());
+                            let ticket_json = from_str::<crate::dto::ticket::Ticket>(json_string.as_str()).unwrap();
+                            return Ok(Arc::new(ticket_json))
                         }
                         MessageStatus::Processing => {
                             let delay = base_delay * 2u32.pow(attempt);
