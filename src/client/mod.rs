@@ -144,7 +144,10 @@ impl OpenApiClient {
             }
             Some(temp_token) => {
                 fn convert_datetime(datetime: String) -> Result<String, ParseError> {
-                    let parsed_date = NaiveDateTime::parse_from_str(datetime.as_str(), "%Y%m%dT%H%M")?;
+                    if let Ok(parsed_date) = NaiveDateTime::parse_from_str(&datetime, "%Y%m%dT%H%M") {
+                        return Ok(parsed_date.format("%Y-%m-%dT%H:%M:%S").to_string());
+                    }
+                    let parsed_date = NaiveDateTime::parse_from_str(&datetime, "%Y%m%dT%H%M%S")?;
                     Ok(parsed_date.format("%Y-%m-%dT%H:%M:%S").to_string())
                 }
 
